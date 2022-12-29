@@ -62,37 +62,56 @@ namespace AHLib
 			return m_Count;
 		}
 
+		constexpr size_t ArrayIsFull() const
+		{
+			return m_Count == m_Capacity;
+		}
+
 		void Add(T newObject)
 		{
-			if (m_Count == m_Capacity)
+			if (ArrayIsFull())
 			{
-				m_Capacity = IncreaseCapacity();
-
-				T* newPointer = new T[m_Capacity];
-				memcpy(newPointer, m_Data, sizeof(T) * m_Count);
-				
-				delete[] m_Data;
-				m_Data = newPointer;
+				m_Capacity = RecalculateCapacity();
+				PointerMigration();
 			}
 
 			m_Data[m_Count] = newObject;
 			m_Count++;
 		}
 
-		void Remove(T targetObject)
+		bool Remove(T targetObject)
 		{
 #ifdef _DEBUG
 			std::cout << "The lookup of the object to be removes uses a basic equality operator. This might remove objects with overlapping values instead of the target instance" << std::endl;
+			std::cout << "Consider creating a version that allows special assertions" << std::endl;
 #endif
-			bool removedEntry = false;
 			for (int i = 0; i < m_Count; i++)
 			{
 				if (targetObject == m_Data[i])
 				{
-					// NOT SCIENTIFICALLY POSSIBLE
-					delete m_Data[i];
-					removedEntry = true;
+					RemoveAt(i);
+					return true;
 				}
+			}
+			return false;
+		}
+		void RemoveAt(size_t index)
+		{
+			for (int i = index; i < m_Count - 1; i++)
+			{
+				m_Data[i] = m_Data[i + 1];
+			}
+			PostRemovalOps(1);
+		}
+
+		void Clear(bool freeAllMemory = false)
+		{
+			m_Count = 0;
+			if (freeAllMemory)
+			{
+				m_Capacity = 0;
+				PostRemovalOps(0, true);
+				PointerMigration();
 			}
 		}
 
@@ -115,13 +134,42 @@ namespace AHLib
 		}
 
 	private:
-		size_t IncreaseCapacity()
+		size_t RecalculateCapacity()
 		{
 #ifdef _DEBUG
 			std::cout << "Basic new capacity template on Darray. Resizing needs to be improved" << std::endl;
 #endif
 
-			return ++m_Capacity;
+			size_t oldCapacity = m_Capacity;
+			size_t newCapacity = m_Capacity;
+
+			if (ArrayIsFull())
+			{
+				newCapacity = m_Count + 1;
+			}
+
+			return newCapacity;
+		}
+
+		void PointerMigration()
+		{
+			T* newPointer = new T[m_Capacity];
+			memcpy(newPointer, m_Data, sizeof(T) * m_Count);
+
+			delete[] m_Data;
+			m_Data = newPointer;
+		}
+
+		void PostRemovalOps(size_t removalCount, bool forceResize = false)
+		{
+#ifdef _DEBUG
+			std::cout << "Branch into counting several removals to optimize resizing" << std::endl;
+#endif
+
+			m_Count -= removalCount;
+
+			if (!forceResize) return;
+			RecalculateCapacity();
 		}
 	};
 }
