@@ -24,7 +24,7 @@
     <ClCompile Include="MathOps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="_Testing.cpp">
+    <ClCompile Include="_Sample311222.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Benchmark.cpp">
