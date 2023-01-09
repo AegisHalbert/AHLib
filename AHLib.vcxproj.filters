@@ -24,10 +24,13 @@
     <ClCompile Include="MathOps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="_Sample311222.cpp">
+    <ClCompile Include="Sample311222.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Benchmark.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_Testing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

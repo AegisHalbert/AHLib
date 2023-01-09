@@ -6,6 +6,8 @@
 
 #include <memory>
 
+#include <vector>
+
 namespace AHLib
 {
 	template<typename T,size_t S>
@@ -42,6 +44,9 @@ namespace AHLib
 	template<typename T> 
 	class Darray
 	{
+	public:
+		using ValueType = T;
+		using Iterator = Diterate<Darray<T>>;
 	private:
 		T* m_Data;
 		size_t m_Capacity;
@@ -133,6 +138,15 @@ namespace AHLib
 			return m_Data;
 		}
 
+		/* Iterator begin()
+		{
+			return Diterate(m_Data);
+		}
+		Iterator end()
+		{
+			return Diterate(m_Data + m_Size);
+		} */
+
 	private:
 		size_t RecalculateCapacity()
 		{
@@ -170,6 +184,66 @@ namespace AHLib
 
 			if (!forceResize) return;
 			RecalculateCapacity();
+		}
+	};
+
+	template <typename Darray>
+	class Diterate
+	{
+	public:
+		using ObjectType = typename Darray::ValueType;
+	private:
+		ObjectType* m_Pointer;
+	public:
+		Diterate(ObjectType pointer) : m_Pointer(pointer)
+		{
+			//
+		}
+
+		ObjectType& operator++()
+		{
+			m_Pointer++;
+			return *m_Pointer;
+		}
+		ObjectType& operator--()
+		{
+			m_Pointer--;
+			return *m_Pointer;
+		}
+		ObjectType operator++(int postFix)
+		{
+			Diterate iterator = *this;
+			++(*this);
+			return iterator;
+		}
+		ObjectType operator--(int postFix)
+		{
+			Diterate iterator = *this;
+			--(*this);
+			return iterator;
+		}
+
+		ObjectType& operator[](int index)
+		{
+			return *(m_Pointer + index);
+		}
+
+		ObjectType* operator->()
+		{
+			return m_Pointer;
+		}
+		ObjectType& operator*()
+		{
+			return *m_Pointer;
+		}
+
+		bool operator==(const Diterate& other) const
+		{
+			return m_Pointer == other.m_Pointer;
+		}
+		bool operator!=(const Diterate& other) const
+		{
+			return !(*this == other);
 		}
 	};
 }

@@ -155,7 +155,8 @@
     <ClCompile Include="MathOps.cpp" />
     <ClCompile Include="StringOps.cpp" />
     <ClCompile Include="Codin221222.cpp" />
-    <ClCompile Include="_Sample311222.cpp" />
+    <ClCompile Include="Sample311222.cpp" />
+    <ClCompile Include="_Testing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Benchmark.h" />
