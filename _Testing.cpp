@@ -2,14 +2,14 @@
 
 int main()
 {
-	AHLib::Darray<int> data;
-	data.Add(1);
-	data.Add(0);
-	data.Add(0);
-	data.Add(5);
-	data.Add(4);
+	AHLib::Darray<std::string> data;
+	data.Add("yo");
+	data.Add("this");
+	data.Add("is");
+	data.Add("quite");
+	data.Add("weird");
 
-	for (int entry : data)
+	for (std::string entry : data)
 	{
 		std::cout << entry << std::endl;
 	}

@@ -41,6 +41,66 @@ namespace AHLib
 		}
 	};
 
+	template <typename Darray>
+	class Diterate
+	{
+	public:
+		using ObjectType = typename Darray::ValueType;
+	private:
+		ObjectType* m_Pointer;
+	public:
+		Diterate(ObjectType* pointer) : m_Pointer(pointer)
+		{
+			//
+		}
+
+		ObjectType& operator++()
+		{
+			m_Pointer++;
+			return *m_Pointer;
+		}
+		ObjectType& operator--()
+		{
+			m_Pointer--;
+			return *m_Pointer;
+		}
+		ObjectType operator++(int postFix)
+		{
+			Diterate iterator = *this;
+			++(*this);
+			return iterator;
+		}
+		ObjectType operator--(int postFix)
+		{
+			Diterate iterator = *this;
+			--(*this);
+			return iterator;
+		}
+
+		ObjectType& operator[](int index)
+		{
+			return *(m_Pointer + index);
+		}
+
+		ObjectType* operator->()
+		{
+			return m_Pointer;
+		}
+		ObjectType& operator*()
+		{
+			return *m_Pointer;
+		}
+
+		bool operator==(const Diterate& other) const
+		{
+			return m_Pointer == other.m_Pointer;
+		}
+		bool operator!=(const Diterate& other) const
+		{
+			return !(*this == other);
+		}
+	};
+
 	template<typename T> 
 	class Darray
 	{
@@ -138,14 +198,14 @@ namespace AHLib
 			return m_Data;
 		}
 
-		/* Iterator begin()
+		Iterator begin()
 		{
-			return Diterate(m_Data);
+			return Iterator(m_Data);
 		}
 		Iterator end()
 		{
-			return Diterate(m_Data + m_Size);
-		} */
+			return Iterator(m_Data + m_Count);
+		}
 
 	private:
 		size_t RecalculateCapacity()
@@ -184,66 +244,6 @@ namespace AHLib
 
 			if (!forceResize) return;
 			RecalculateCapacity();
-		}
-	};
-
-	template <typename Darray>
-	class Diterate
-	{
-	public:
-		using ObjectType = typename Darray::ValueType;
-	private:
-		ObjectType* m_Pointer;
-	public:
-		Diterate(ObjectType pointer) : m_Pointer(pointer)
-		{
-			//
-		}
-
-		ObjectType& operator++()
-		{
-			m_Pointer++;
-			return *m_Pointer;
-		}
-		ObjectType& operator--()
-		{
-			m_Pointer--;
-			return *m_Pointer;
-		}
-		ObjectType operator++(int postFix)
-		{
-			Diterate iterator = *this;
-			++(*this);
-			return iterator;
-		}
-		ObjectType operator--(int postFix)
-		{
-			Diterate iterator = *this;
-			--(*this);
-			return iterator;
-		}
-
-		ObjectType& operator[](int index)
-		{
-			return *(m_Pointer + index);
-		}
-
-		ObjectType* operator->()
-		{
-			return m_Pointer;
-		}
-		ObjectType& operator*()
-		{
-			return *m_Pointer;
-		}
-
-		bool operator==(const Diterate& other) const
-		{
-			return m_Pointer == other.m_Pointer;
-		}
-		bool operator!=(const Diterate& other) const
-		{
-			return !(*this == other);
 		}
 	};
 }
