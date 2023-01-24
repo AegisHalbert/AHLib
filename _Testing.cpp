@@ -1,6 +1,6 @@
 #include "Structures.h";
 
-int main()
+int main_anon()
 {
 	AHLib::Darray<std::string> data;
 	data.Add("yo");

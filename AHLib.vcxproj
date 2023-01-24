@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Benchmark.cpp" />
+    <ClCompile Include="Dirty_GA_Implementation.cpp" />
     <ClCompile Include="MathOps.cpp" />
     <ClCompile Include="StringOps.cpp" />
     <ClCompile Include="Codin221222.cpp" />
