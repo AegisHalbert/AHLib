@@ -18,7 +18,7 @@
 *	method that is extremely unoptimized (AHLib-0.0.1)
 */
 
-int main_311222()
+int main_31122()
 {
 	AHLib::Darray<int> data;
 	data.Add(1);

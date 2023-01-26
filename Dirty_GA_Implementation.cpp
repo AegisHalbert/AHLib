@@ -143,7 +143,7 @@ float GetFitValue(std::array<int, S> answer, const MpGene& target)
 	return totalFit;
 }
 
-int main()
+int main_anon()
 {
 	std::srand((unsigned int)time(NULL));
 
@@ -225,16 +225,18 @@ int main()
 			{
 				individuals[i].gens[0] = MpGene(std::get<1>(fitPairs[i])->gens[0]);
 			}
-
+			
+			/*
 			for (int i = populationHalf; i < initialPopulation - clonesNumber; i++)
 			{
 				individuals[i].gens[0].SetupAsBase();
 			}
-		}
+			*/
 
-		for (int i = 0; i < individuals.size(); i++)
-		{
-			individuals[i].gens[0].Mutate();
+			for (int i = 0; i < individuals.size(); i++)
+			{
+				individuals[i].gens[0].Mutate();
+			}
 		}
 
 		for (int i = 0; i < individuals.size(); i++)

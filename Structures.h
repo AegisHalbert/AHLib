@@ -132,7 +132,7 @@ namespace AHLib
 			return m_Count == m_Capacity;
 		}
 
-		void Add(T newObject)
+		void Add(T& newObject)
 		{
 			if (ArrayIsFull())
 			{
@@ -141,6 +141,18 @@ namespace AHLib
 			}
 
 			m_Data[m_Count] = newObject;
+			m_Count++;
+		}
+
+		void Add(const T& newObject)
+		{
+			if (ArrayIsFull())
+			{
+				m_Capacity = RecalculateCapacity();
+				PointerMigration();
+			}
+
+			new (&m_Data[m_Count]) T(std::move(newObject));
 			m_Count++;
 		}
 
@@ -228,7 +240,11 @@ namespace AHLib
 		void PointerMigration()
 		{
 			T* newPointer = new T[m_Capacity];
-			memcpy(newPointer, m_Data, sizeof(T) * m_Count);
+
+			for (int i = 0; i < m_Count; i++) 
+			{
+				newPointer[i] = std::move(m_Data[i]);
+			}
 
 			delete[] m_Data;
 			m_Data = newPointer;

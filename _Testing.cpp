@@ -1,13 +1,13 @@
 #include "Structures.h";
 
-int main_anon()
+int main()
 {
 	AHLib::Darray<std::string> data;
-	data.Add("yo");
 	data.Add("this");
 	data.Add("is");
 	data.Add("quite");
 	data.Add("weird");
+	data.Add("yo");
 
 	for (std::string entry : data)
 	{
