@@ -6,8 +6,6 @@
 
 #include <memory>
 
-#include <vector>
-
 namespace AHLib
 {
 	template<typename T,size_t S>

@@ -1,6 +1,9 @@
-#include "Structures.h";
+#include <Structures.h>
 
-int main()
+#include <string>
+#include <iostream>
+
+int main_Structures()
 {
 	AHLib::Darray<std::string> data;
 	data.Add("this");

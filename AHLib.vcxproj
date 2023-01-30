@@ -94,6 +94,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)Meta;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,6 +111,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)Meta;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,6 +128,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)Meta;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +145,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)Meta;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,19 +155,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Benchmark.cpp" />
-    <ClCompile Include="Dirty_GA_Implementation.cpp" />
-    <ClCompile Include="MathOps.cpp" />
-    <ClCompile Include="StringOps.cpp" />
-    <ClCompile Include="Codin221222.cpp" />
-    <ClCompile Include="Sample311222.cpp" />
-    <ClCompile Include="_Testing.cpp" />
+    <ClCompile Include="FocusTester_SB.cpp" />
+    <ClCompile Include="Meta\Benchmark.cpp" />
+    <ClCompile Include="GA_Sandbox.cpp" />
+    <ClCompile Include="Core\MathOps.cpp" />
+    <ClCompile Include="Core\StringOps.cpp" />
+    <ClCompile Include="Samples\Codin221222.cpp" />
+    <ClCompile Include="Samples\Sample311222.cpp" />
+    <ClCompile Include="Structures_Sandbox.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Benchmark.h" />
-    <ClInclude Include="MathOps.h" />
-    <ClInclude Include="StringOps.h" />
-    <ClInclude Include="Structures.h" />
+    <ClInclude Include="Meta\Benchmark.h" />
+    <ClInclude Include="Core\MathOps.h" />
+    <ClInclude Include="Core\StringOps.h" />
+    <ClInclude Include="Core\Structures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

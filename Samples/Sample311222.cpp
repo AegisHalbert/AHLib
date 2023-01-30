@@ -1,5 +1,5 @@
-#include "Structures.h"
-#include "Benchmark.h"
+#include <Structures.h>
+#include <Benchmark.h>
 
 #include <iostream>
 #include <array>
@@ -31,7 +31,9 @@ int main_31122()
 
 	data.Clear(false);
 	{
+#ifdef _DEBUG
 		AHLib::ScopeWatch watch("Pointer Kept on Clear");
+#endif
 
 		data.Add(0);
 		data.Add(1);
@@ -44,7 +46,9 @@ int main_31122()
 
 	data.Clear(true);
 	{
+#ifdef _DEBUG
 		AHLib::ScopeWatch watch("Pointer Freed on Clear");
+#endif
 
 		data.Add(0);
 		data.Add(0);
