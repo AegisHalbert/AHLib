@@ -160,6 +160,7 @@
     <ClCompile Include="GA_Sandbox.cpp" />
     <ClCompile Include="Core\MathOps.cpp" />
     <ClCompile Include="Core\StringOps.cpp" />
+    <ClCompile Include="PolyRunner_SB.cpp" />
     <ClCompile Include="Samples\Codin221222.cpp" />
     <ClCompile Include="Samples\Sample311222.cpp" />
     <ClCompile Include="Structures_Sandbox.cpp" />

@@ -39,6 +39,9 @@
     <ClCompile Include="FocusTester_SB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PolyRunner_SB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\StringOps.h">
