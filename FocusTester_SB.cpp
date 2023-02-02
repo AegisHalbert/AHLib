@@ -7,6 +7,8 @@
 #include <vector>
 
 static const std::string CONFIGFILENAME = "config.txt";
+static const std::string VERSIOFILENAME = "version.txt";
+
 static const char SEPARATOR = std::filesystem::path::preferred_separator;
 
 static std::vector<std::string> extensionsList;
@@ -57,7 +59,114 @@ static bool ConfigurationExists(std::filesystem::directory_entry workingDirector
 	return configFound;
 }
 
+static bool VersionFileExists(std::filesystem::directory_entry workingDirectory)
+{
+	std::filesystem::directory_iterator directoryIterate(workingDirectory);
+
+	bool versionFound = false;
+	for (std::filesystem::directory_entry entry : directoryIterate)
+	{
+		if (entry.path().filename() == VERSIOFILENAME)
+		{
+			versionFound = true;
+			break;
+		}
+	}
+
+	return versionFound;
+}
+
 static int lastExtensionIndex = 0;
+
+static void GetTrackedExtensions(char* buffer, int fileLength)
+{
+	bool extensionsRead = false;
+
+	for (int i = 0; i < fileLength; i++)
+	{
+		char& selectedChar = buffer[i];
+		if (!extensionsRead)
+		{
+			if (selectedChar == '\n')
+			{
+				extensionsRead = true;
+
+				int newExtensionLength = (i - lastExtensionIndex);
+				char* newExtension = new char[newExtensionLength];
+				for (int j = 0; j < newExtensionLength; j++)
+				{
+					newExtension[j] = buffer[j + lastExtensionIndex + 1];
+				}
+				newExtension[newExtensionLength - 1] = 0;
+
+				std::string extensionString(newExtension);
+				extensionsList.emplace_back(extensionString);
+
+				lastExtensionIndex = i + 1;
+			}
+
+			if (selectedChar == ' ')
+			{
+				int newExtensionLength = (i - lastExtensionIndex);
+				char* newExtension = new char[newExtensionLength];
+
+				for (int j = 0; j < newExtensionLength; j++)
+				{
+					newExtension[j] = buffer[j + lastExtensionIndex + 1];
+				}
+				newExtension[newExtensionLength - 1] = 0;
+
+				std::string extensionString(newExtension);
+				extensionsList.emplace_back(extensionString);
+
+				lastExtensionIndex = i + 1;
+			}
+		}
+		else break;
+	}
+}
+
+std::vector<std::string> ignoredFiles;
+
+static void GetIgnoredFiles(char* buffer, int fileLength)
+{
+	int linesSkipped = 0;
+	int lastLineOffset = 0;
+
+	int lineSkipTimes = 0;
+	int constructTimes = 0;
+
+	for (int i = 0; i < fileLength; i++)
+	{
+		char& selectedChar = buffer[i];
+
+		if (selectedChar == '\n')
+		{
+			if (linesSkipped < 2)
+			{
+				linesSkipped++;
+				lastLineOffset = i;
+			}
+				
+			else
+			{
+				int newExtensionLength = (i - lastLineOffset);
+				char* newFilePath = new char[newExtensionLength];
+
+				for (int j = 0; j < newExtensionLength; j++)
+				{
+					newFilePath[j] = buffer[j + lastLineOffset + 1];
+				}
+				newFilePath[newExtensionLength - 1] = 0;
+
+				std::string newFilePathName(newFilePath);
+				ignoredFiles.emplace_back(newFilePathName);
+
+				lastLineOffset = i;
+			}
+		}
+	}
+}
 
 int main()
 {
@@ -107,7 +216,7 @@ int main()
 			}
 
 			command = fullCommand.substr(0, whiteSpaceAt);
-			parameter = fullCommand.substr(whiteSpaceAt);
+			parameter = fullCommand.substr(whiteSpaceAt + 1);
 
 			if (command == "add")
 			{
@@ -128,10 +237,16 @@ int main()
 		{
 			newFile << acceptedExtensions[i];
 		}
-		
 		newFile << std::endl;
 
-		newFile << "Another test..." << std::endl;
+		newFile << "---Files ignored. Defaults to all the files found on root upon config.txt creation.---" << std::endl;
+
+		std::filesystem::directory_iterator directoryIterate(workingDirectory);
+		for (std::filesystem::directory_entry entry : directoryIterate)
+		{
+			newFile << entry.path().filename() << std::endl;
+		}
+
 		newFile.flush();
 		newFile.close();
 
@@ -152,59 +267,37 @@ int main()
 		configFile.read(buffer, fileLength);
 		configFile.close();
 
-		bool extensionsRead = false;
+		GetTrackedExtensions(buffer, fileLength);
 
-		for (int i = 0; i < fileLength; i++)
-		{
-			char& selectedChar = buffer[i];
-			if (!extensionsRead)
-			{
-				if (selectedChar == '\n')
-				{
-					extensionsRead = true;
-
-					int newExtensionLength = (i - lastExtensionIndex);
-					char* newExtension = new char[newExtensionLength];
-					for (int j = 0; j < newExtensionLength; j++)
-					{
-						newExtension[j] = buffer[j + lastExtensionIndex + 1];
-					}
-					newExtension[newExtensionLength - 1] = 0;
-
-					std::string extensionString(newExtension);
-					extensionsList.emplace_back(extensionString);
-
-					lastExtensionIndex = i + 1;
-				}
-
-				if (selectedChar == ' ')
-				{
-					int newExtensionLength = (i - lastExtensionIndex);
-					char* newExtension = new char[newExtensionLength];
-
-					for (int j = 0; j < newExtensionLength; j++)
-					{
-						newExtension[j] = buffer[j + lastExtensionIndex + 1];
-					}
-					newExtension[newExtensionLength - 1] = 0;
-
-					std::string extensionString(newExtension);
-					extensionsList.emplace_back(extensionString);
-
-					lastExtensionIndex = i + 1;
-				}
-			}
-			else break;
-		}
-
-		std::cout << ":   ::Extensions:: ";
+		std::cout << "Tracking extensions: ";
 		for (int i = 0; i < extensionsList.size(); i++)
 		{
 			std::cout << extensionsList[i] << " ";
 		}
 		std::cout << std::endl;
 
+		GetIgnoredFiles(buffer, fileLength);
+
+		std::cout << "Files ignored: " << std::endl;
+		for (int i = 0; i < ignoredFiles.size(); i++)
+		{
+			std::cout << ignoredFiles[i] << std::endl;
+		}
+		std::cout << std::endl;
+
 		delete[] buffer;
+
+	}
+
+	std::string versionPath = workingPath.string() + SEPARATOR + CONFIGFILENAME;
+	if (!VersionFileExists(workingDirectory))
+	{
+		std::cout << "Version file doesn't exists. Creating version.txt" << std::endl;
+		std::cout << "First version needs to be created to create the file." << std::endl;
+	}
+	else
+	{
+
 	}
 
 	std::cout << std::endl;
