@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#include <chrono>
+
 static const std::string CONFIGFILENAME = "config.txt";
 static const std::string VERSIOFILENAME = "version.txt";
 
@@ -147,7 +149,7 @@ static void GetIgnoredFiles(char* buffer, int fileLength)
 				linesSkipped++;
 				lastLineOffset = i;
 			}
-				
+
 			else
 			{
 				int newExtensionLength = (i - lastLineOffset);
@@ -166,6 +168,52 @@ static void GetIgnoredFiles(char* buffer, int fileLength)
 			}
 		}
 	}
+}
+
+static unsigned long long testingTime;
+
+static void FetchTestingTime(char* buffer, int fileLength)
+{
+	int firstDigitindex = 0;
+	int lastDigitIndex = 0;
+
+	for (int i = 0; i < fileLength; i++)
+	{
+		char& selectedChar = buffer[i];
+
+		if (selectedChar == '\n')
+		{
+			i++;
+			selectedChar = buffer[i];
+
+			if (selectedChar == '-')
+			{
+				i -= 2;
+				lastDigitIndex = i;
+
+				while (selectedChar != '\r')
+				{
+					i--;
+					selectedChar = buffer[i];
+				}
+
+				firstDigitindex = i + 1;
+				break;
+			}
+		}
+	}
+
+	int newExtensionLength = (lastDigitIndex - firstDigitindex);
+	char* numberCharSet = new char[newExtensionLength];
+
+	for (int j = 0; j < newExtensionLength; j++)
+	{
+		numberCharSet[j] = buffer[firstDigitindex + j];
+	}
+	numberCharSet[newExtensionLength - 1] = 0;
+
+	std::string numberString(numberCharSet);
+	testingTime = std::stoull(numberString);
 }
 
 int main()
@@ -201,7 +249,7 @@ int main()
 			std::cout << "stop            : stop adding extensions and finish writing the config file" << std::endl;
 
 			std::getline(std::cin, fullCommand);
-			
+
 			if (fullCommand == "stop")
 			{
 				command = "stop";
@@ -231,6 +279,7 @@ int main()
 					continue;
 				}
 			}
+
 		}
 
 		for (int i = 0; i < acceptedExtensions.size(); i++)
@@ -289,15 +338,169 @@ int main()
 
 	}
 
-	std::string versionPath = workingPath.string() + SEPARATOR + CONFIGFILENAME;
+	std::string versionPath = workingPath.string() + SEPARATOR + VERSIOFILENAME;
 	if (!VersionFileExists(workingDirectory))
 	{
 		std::cout << "Version file doesn't exists. Creating version.txt" << std::endl;
 		std::cout << "First version needs to be created to create the file." << std::endl;
+
+		std::ofstream newFile(versionPath.c_str());
+
+		std::string fullCommand = "";
+		std::string command = "";
+		std::string parameter = "";
+
+		int whiteSpaceAt = 0;
+
+		std::cout << "Name the target version: ";
+		std::getline(std::cin, fullCommand);
+		std::string versionName = fullCommand;
+
+		std::vector<std::string> versionTests;
+		while (command != "stop")
+		{
+			std::cout << std::endl;
+			std::cout << "add [newTest] : [newTest] is registered as a target for this version" << std::endl;
+			std::cout << "stop          : stop adding tests and finish writing the version entry" << std::endl;
+
+			std::getline(std::cin, fullCommand);
+
+			if (fullCommand == "stop")
+			{
+				command = "stop";
+				continue;
+			}
+
+			whiteSpaceAt = fullCommand.find(' ');
+			if (whiteSpaceAt == fullCommand.npos)
+			{
+				std::cout << "ERROR command, try again. No space (?)" << std::endl;
+				continue;
+			}
+
+			command = fullCommand.substr(0, whiteSpaceAt);
+			parameter = fullCommand.substr(whiteSpaceAt + 1);
+
+			if (command == "add")
+			{
+				std::cout << "Test added correctly" << std::endl;
+				versionTests.push_back(parameter);
+			}
+			else
+			{
+				if (command != "stop")
+				{
+					std::cout << "ERROR command, try again. No recognized (?)" << std::endl;
+					continue;
+				}
+			}
+		}
+
+		newFile << versionName << " [" << versionTests.size() << "]" << std::endl;
+
+		for (int i = 0; i < versionTests.size(); i++)
+		{
+			newFile << versionTests[i] << std::endl;
+		}
+
+		newFile << std::chrono::high_resolution_clock::now().time_since_epoch().count() << std::endl;
+		newFile << "-------------------- " << std::endl;
+
+		newFile.flush();
+		newFile.close();
+
+		std::cout << "Version file created " << std::endl;
 	}
 	else
 	{
+		// existing version checks ??
+	}
 
+	// Read the version file
+	std::ifstream versionFile(versionPath.c_str(), std::ifstream::binary);
+
+	versionFile.seekg(0, versionFile.end);
+	int fileLength = versionFile.tellg();
+	versionFile.seekg(0, versionFile.beg);
+
+	char* buffer = new char[fileLength];
+
+	versionFile.read(buffer, fileLength);
+	versionFile.close();
+
+	FetchTestingTime(buffer, fileLength);
+
+	std::cout << "FetchedTestingtime: " << testingTime << std::endl;
+
+	delete[] buffer;
+	// 
+
+	std::string fullCommand = "";
+	std::string command = "";
+	std::string parameter = "";
+
+	int whiteSpaceAt = 0;
+
+	std::cout << "Welcome to Focus Tester! " << std::endl;
+
+	std::vector<std::string> versionTests;
+	while (command != "close")
+	{
+		std::cout << std::endl;
+		std::cout << "verify : go through the tests and close this version " << std::endl;
+		std::cout << "new    : create new version. Ony works if the version is verified " << std::endl;
+		std::cout << "update : check for new files to be tracked for the current version " << std::endl;
+		std::cout << "close  : finish any remaining operation and close the program " << std::endl;
+
+		std::getline(std::cin, fullCommand);
+
+		if (fullCommand == "close")
+		{
+			command = "close";
+			continue;
+		}
+
+		if (fullCommand == "verify")
+		{
+
+			continue;
+		}
+
+		if (fullCommand == "new")
+		{
+
+			continue;
+		}
+
+		if (fullCommand == "update")
+		{
+
+			continue;
+		}
+
+		whiteSpaceAt = fullCommand.find(' ');
+		if (whiteSpaceAt == fullCommand.npos)
+		{
+			std::cout << "ERROR command, try again. No space (?)" << std::endl;
+			continue;
+		}
+
+		command = fullCommand.substr(0, whiteSpaceAt);
+		parameter = fullCommand.substr(whiteSpaceAt + 1);
+
+		if (command == "add")
+		{
+			std::cout << "Test added correctly" << std::endl;
+			versionTests.push_back(parameter);
+		}
+		else
+		{
+			if (command != "close")
+			{
+				std::cout << "ERROR command, try again. No recognized (?)" << std::endl;
+				continue;
+			}
+		}
 	}
 
 	std::cout << std::endl;
