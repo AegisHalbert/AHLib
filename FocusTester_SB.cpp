@@ -13,6 +13,17 @@ static const std::string VERSIOFILENAME = "version.txt";
 
 static const char SEPARATOR = std::filesystem::path::preferred_separator;
 
+static const int EXPECTEDCOLUMNSIZE = 30;
+
+enum VersionReadStep : unsigned char
+{
+	Header = 0,
+	Tests = 1,
+	Time = 2,
+	FilesHeader = 3,
+	Files = 4,
+};
+
 static std::vector<std::string> extensionsList;
 
 std::ostream& operator<<(std::ostream& stream, const std::filesystem::file_time_type time)
@@ -153,13 +164,13 @@ static void GetIgnoredFiles(char* buffer, int fileLength)
 			else
 			{
 				int newExtensionLength = (i - lastLineOffset);
-				char* newFilePath = new char[newExtensionLength];
+				char* newFilePath = new char[newExtensionLength - 2];
 
-				for (int j = 0; j < newExtensionLength; j++)
+				for (int j = 0; j < newExtensionLength - 2; j++)
 				{
 					newFilePath[j] = buffer[j + lastLineOffset + 1];
 				}
-				newFilePath[newExtensionLength - 1] = 0;
+				newFilePath[newExtensionLength - 2] = '\0';
 
 				std::string newFilePathName(newFilePath);
 				ignoredFiles.emplace_back(newFilePathName);
@@ -171,6 +182,7 @@ static void GetIgnoredFiles(char* buffer, int fileLength)
 }
 
 static unsigned long long testingTime;
+static bool allVersionsPassed = true;
 
 static void FetchTestingTime(char* buffer, int fileLength)
 {
@@ -186,8 +198,25 @@ static void FetchTestingTime(char* buffer, int fileLength)
 			i++;
 			selectedChar = buffer[i];
 
+			if (selectedChar == '+')
+			{
+				i -= 2;
+				lastDigitIndex = i;
+
+				while (selectedChar != '\r')
+				{
+					i--;
+					selectedChar = buffer[i];
+				}
+
+				firstDigitindex = i + 1;
+				break;
+			}
+
 			if (selectedChar == '-')
 			{
+				allVersionsPassed = false;
+
 				i -= 2;
 				lastDigitIndex = i;
 
@@ -214,6 +243,112 @@ static void FetchTestingTime(char* buffer, int fileLength)
 
 	std::string numberString(numberCharSet);
 	testingTime = std::stoull(numberString);
+}
+
+static std::vector<std::string> testingList;
+
+static int lastTestCheckIndex = 0;
+
+static void FillTestingList(char* buffer, int fileLength)
+{
+	testingList.clear();
+
+	std::vector<std::string> PartialTestingList;
+	testingList.reserve((float)fileLength / (float) EXPECTEDCOLUMNSIZE);
+
+	VersionReadStep currentStep = Header;
+
+	int numberMarkBeginning = 0;
+	int numberMarkEnding = 0;
+
+	int currentNumberOfTests = 0;
+
+	int lastLineOffset = 0;
+
+	unsigned long long registeredTestingTime = 0ULL;
+
+	bool lastVersion = false;
+	for (int i = 0; i < fileLength; i++)
+	{
+		char& selectedChar = buffer[i];
+
+		switch (currentStep)
+		{
+		case Header: 
+		{
+			if (selectedChar == '[')
+			{
+				numberMarkBeginning = i;
+			}
+			if (selectedChar == ']')
+			{
+				numberMarkEnding = i;
+
+				int versionTestCountDigits = (numberMarkEnding - numberMarkBeginning);
+				char* numberCharSet = new char[versionTestCountDigits];
+
+				for (int j = 1; j < versionTestCountDigits; j++)
+				{
+					numberCharSet[j - 1] = buffer[numberMarkBeginning + j];
+				}
+				numberCharSet[versionTestCountDigits - 1] = 0;
+
+				std::string numberString(numberCharSet);
+				currentNumberOfTests = std::stoi(numberString);
+
+				i += 2;
+				lastLineOffset = i;
+				currentStep = Tests;
+			}
+			break;
+		}
+		case Tests: 
+		{
+			if (selectedChar == '\n')
+			{
+				char& charAhead = buffer[i + 1];
+				// if (charAhead == '+' || charAhead == '-') currentStep = Time;
+				if (charAhead == '-')
+				{
+					currentStep = Time;
+					lastVersion = true;
+					lastTestCheckIndex = i;
+				}
+
+				int newLineLength = (i - lastLineOffset);
+				char* newTestEntry = new char[newLineLength];
+
+				for (int j = 0; j < newLineLength; j++)
+				{
+					newTestEntry[j] = buffer[j + lastLineOffset + 1];
+				}
+				newTestEntry[newLineLength - 1] = 0;
+
+				std::string newTestText(newTestEntry);
+				if (currentStep != Time) PartialTestingList.emplace_back(newTestText);
+				else
+				{
+					registeredTestingTime = std::stoull(newTestText);
+					currentStep = FilesHeader;
+				}
+
+				lastLineOffset = i;
+			}
+			break;
+		}
+		}
+
+		if (lastVersion)
+		{
+			for (std::string entry : PartialTestingList)
+			{
+				testingList.emplace_back(entry);
+			}
+
+			std::cout << "DEBUG: Reached last version entry. There is a BREAK here, careful." << std::endl;
+			break;
+		}
+	}
 }
 
 int main()
@@ -293,13 +428,45 @@ int main()
 		std::filesystem::directory_iterator directoryIterate(workingDirectory);
 		for (std::filesystem::directory_entry entry : directoryIterate)
 		{
-			newFile << entry.path().filename() << std::endl;
+			std::string extracted = entry.path().filename().string();
+			newFile << extracted << std::endl;
 		}
 
 		newFile.flush();
 		newFile.close();
 
 		std::cout << "Configuration file created " << std::endl;
+
+		std::ifstream configFile(configPath.c_str(), std::ifstream::binary);
+
+		configFile.seekg(0, configFile.end);
+		int fileLength = configFile.tellg();
+		configFile.seekg(0, configFile.beg);
+
+		char* buffer = new char[fileLength];
+
+		configFile.read(buffer, fileLength);
+		configFile.close();
+
+		GetTrackedExtensions(buffer, fileLength);
+
+		std::cout << "Tracking extensions: ";
+		for (int i = 0; i < extensionsList.size(); i++)
+		{
+			std::cout << extensionsList[i] << " ";
+		}
+		std::cout << std::endl;
+
+		GetIgnoredFiles(buffer, fileLength);
+
+		std::cout << "Files ignored: " << std::endl;
+		for (int i = 0; i < ignoredFiles.size(); i++)
+		{
+			std::cout << ignoredFiles[i] << std::endl;
+		}
+		std::cout << std::endl;
+
+		delete[] buffer;
 	}
 	else
 	{
@@ -430,7 +597,12 @@ int main()
 
 	FetchTestingTime(buffer, fileLength);
 
-	std::cout << "FetchedTestingtime: " << testingTime << std::endl;
+	std::cout << "Testing time: " << testingTime << std::endl;
+	std::cout << "Current time: " << std::chrono::high_resolution_clock::now().time_since_epoch().count() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "Current version is" << ((allVersionsPassed) ? "" : " NOT") << " verified" << std::endl;
+	std::cout << std::endl;
 
 	delete[] buffer;
 	// 
@@ -441,7 +613,7 @@ int main()
 
 	int whiteSpaceAt = 0;
 
-	std::cout << "Welcome to Focus Tester! " << std::endl;
+	std::cout << " -+- Welcome to Focus Tester! -+- " << std::endl;
 
 	std::vector<std::string> versionTests;
 	while (command != "close")
@@ -449,7 +621,6 @@ int main()
 		std::cout << std::endl;
 		std::cout << "verify : go through the tests and close this version " << std::endl;
 		std::cout << "new    : create new version. Ony works if the version is verified " << std::endl;
-		std::cout << "update : check for new files to be tracked for the current version " << std::endl;
 		std::cout << "close  : finish any remaining operation and close the program " << std::endl;
 
 		std::getline(std::cin, fullCommand);
@@ -462,19 +633,108 @@ int main()
 
 		if (fullCommand == "verify")
 		{
+			std::ifstream versionFile(versionPath.c_str(), std::ifstream::binary);
+
+			versionFile.seekg(0, versionFile.end);
+			int fileLength = versionFile.tellg();
+			versionFile.seekg(0, versionFile.beg);
+
+			char* buffer = new char[fileLength];
+
+			versionFile.read(buffer, fileLength);
+
+			FillTestingList(buffer, fileLength);
+			std::cout << std::endl;
+			
+			bool testsPassed = false;
+
+			int testingSize = testingList.size();
+			for (int i=0; i < testingSize; i++)
+			{
+				std::cout << ">>> TEST " << (i + 1) << "/" << testingSize << ": " << testingList[i] << std::endl;
+				std::cout << "p    : pass the test " << std::endl;
+				std::cout << "kill : abort testing " << std::endl;
+
+				std::getline(std::cin, fullCommand);
+
+				if (fullCommand == "p")
+				{
+					if (i == testingSize - 1) testsPassed = true;
+					continue;
+				}
+				if (fullCommand == "kill")
+				{
+					std::cout << "VERIFICATION CANCELLED. NOTHING WAS CHANGED" << std::endl;
+					break;
+				}
+				std::cout << "ERROR command, try again. No space (?)" << std::endl;
+			}
+
+			if (testsPassed)
+			{
+				std::ofstream versionFileOutput(versionPath.c_str(), std::ifstream::binary);
+
+				bool overwrittenVersionMarker = false;
+				for (int i = 0; i < fileLength; i++)
+				{
+					if (!overwrittenVersionMarker && i >= lastTestCheckIndex + 1)
+					{
+						if (buffer[i] == '-') versionFileOutput << '+';
+						else overwrittenVersionMarker = true;
+					}
+					else versionFileOutput << buffer[i];
+				}
+
+				std::filesystem::recursive_directory_iterator directoryIterate(workingDirectory);
+				for (std::filesystem::directory_entry entry : directoryIterate)
+				{
+					bool ignoredFile = false;
+					for (int i = 0; i < ignoredFiles.size(); i++)
+					{
+						if (entry.path().filename().string() == ignoredFiles[i])
+						{
+							ignoredFile = true;
+							break;
+						}
+					}
+					if (ignoredFile) continue;
+
+					bool trackedExtension = false;
+					for (int i = 0; i < extensionsList.size(); i++)
+					{
+						std::string fextenstion = entry.path().extension().string();
+						std::string fcompare = extensionsList[i];
+
+						if (entry.path().extension().string() == extensionsList[i])
+						{
+							trackedExtension = true;
+							break;
+						}
+					}
+					if (!trackedExtension) continue;
+
+					versionFileOutput << entry.path().filename() << std::endl;
+				}
+
+				versionFileOutput.flush();
+				versionFileOutput.close();
+			}
 
 			continue;
 		}
 
 		if (fullCommand == "new")
 		{
-
-			continue;
-		}
-
-		if (fullCommand == "update")
-		{
-
+			if (allVersionsPassed)
+			{
+				std::cout << "Launching new version! this is for now an empty option." << std::endl;
+				continue;
+			}
+			else
+			{
+				std::cout << "WARNING! You cannot close a version without passing all tests. Run verify first." << std::endl;
+				continue;
+			}
 			continue;
 		}
 
