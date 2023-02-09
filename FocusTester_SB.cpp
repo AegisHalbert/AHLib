@@ -267,6 +267,7 @@ static void FillTestingList(char* buffer, int fileLength)
 	int numberMarkEnding = 0;
 
 	int currentNumberOfTests = 0;
+	int currentNumberOfFiles = 0;
 
 	int lastLineOffset = 0;
 
@@ -309,10 +310,16 @@ static void FillTestingList(char* buffer, int fileLength)
 		}
 		case Tests: 
 		{
-			if (selectedChar == '\n')
+			if (selectedChar == '\n' || selectedChar == '\r')
 			{
 				char& charAhead = buffer[i + 1];
-				// if (charAhead == '+' || charAhead == '-') currentStep = Time;
+
+				if (charAhead == '+')
+				{
+					currentStep = Time;
+					lastTestCheckIndex = i;
+				}
+
 				if (charAhead == '-')
 				{
 					currentStep = Time;
@@ -341,6 +348,44 @@ static void FillTestingList(char* buffer, int fileLength)
 			}
 			break;
 		}
+
+		case FilesHeader: 
+		{
+			if (selectedChar == '[')
+			{
+				numberMarkBeginning = i;
+			}
+			if (selectedChar == ']')
+			{
+				numberMarkEnding = i;
+
+				int filesCountDigits = (numberMarkEnding - numberMarkBeginning);
+				char* numberCharSet = new char[filesCountDigits];
+
+				for (int j = 1; j < filesCountDigits; j++)
+				{
+					numberCharSet[j - 1] = buffer[numberMarkBeginning + j];
+				}
+				numberCharSet[filesCountDigits - 1] = 0;
+
+				std::string numberString(numberCharSet);
+				currentNumberOfFiles = std::stoi(numberString);
+
+				currentStep = Files;
+
+				i += 2;
+				lastLineOffset = i;
+				currentStep = Tests;
+			}
+			break;
+		}
+
+		case Files: 
+		{
+
+			break;
+		}
+
 		}
 
 		if (lastVersion)
@@ -354,6 +399,101 @@ static void FillTestingList(char* buffer, int fileLength)
 			break;
 		}
 	}
+}
+
+static void CreateNewVersion(std::filesystem::path workingPath)
+{
+	std::string versionPath = workingPath.string() + SEPARATOR + VERSIOFILENAME;
+
+	std::ifstream oldVersionFile(versionPath.c_str(), std::ifstream::binary);
+
+	oldVersionFile.seekg(0, oldVersionFile.end);
+	int fileLength = oldVersionFile.tellg();
+	oldVersionFile.seekg(0, oldVersionFile.beg);
+
+	char* buffer = new char[fileLength];
+
+	oldVersionFile.read(buffer, fileLength);
+	oldVersionFile.close();
+
+	std::ofstream newFile(versionPath.c_str());
+
+	char& lastChar = buffer[0];
+	for (int i = 0; i < fileLength; i++)
+	{
+		if ((lastChar == '\r' && buffer[i] == '\n') || (lastChar == '\n' && buffer[i] == '\n'))
+		{
+			lastChar = buffer[i];
+			continue;
+		}
+		newFile << buffer[i];
+		lastChar = buffer[i];
+	}
+
+	std::string fullCommand = "";
+	std::string command = "";
+	std::string parameter = "";
+
+	int whiteSpaceAt = 0;
+
+	std::cout << "Name the target version: ";
+	std::getline(std::cin, fullCommand);
+	std::string versionName = fullCommand;
+
+	std::vector<std::string> versionTests;
+	while (command != "stop")
+	{
+		std::cout << std::endl;
+		std::cout << "add [newTest] : [newTest] is registered as a target for this version" << std::endl;
+		std::cout << "stop          : stop adding tests and finish writing the version entry" << std::endl;
+
+		std::getline(std::cin, fullCommand);
+
+		if (fullCommand == "stop")
+		{
+			command = "stop";
+			continue;
+		}
+
+		whiteSpaceAt = fullCommand.find(' ');
+		if (whiteSpaceAt == fullCommand.npos)
+		{
+			std::cout << "ERROR command, try again. No space (?)" << std::endl;
+			continue;
+		}
+
+		command = fullCommand.substr(0, whiteSpaceAt);
+		parameter = fullCommand.substr(whiteSpaceAt + 1);
+
+		if (command == "add")
+		{
+			std::cout << "Test added correctly" << std::endl;
+			versionTests.push_back(parameter);
+		}
+		else
+		{
+			if (command != "stop")
+			{
+				std::cout << "ERROR command, try again. No recognized (?)" << std::endl;
+				continue;
+			}
+		}
+	}
+
+	newFile << versionName << " [" << versionTests.size() << "]" << std::endl;
+
+	for (int i = 0; i < versionTests.size(); i++)
+	{
+		newFile << versionTests[i] << std::endl;
+	}
+
+	newFile << std::chrono::high_resolution_clock::now().time_since_epoch().count() << std::endl;
+	newFile << "-------------------- " << std::endl;
+
+	newFile.flush();
+	newFile.close();
+
+	std::cout << "Version file created " << std::endl;
 }
 
 int main()
@@ -744,7 +884,7 @@ int main()
 		{
 			if (allVersionsPassed)
 			{
-				std::cout << "Launching new version! this is for now an empty option." << std::endl;
+				CreateNewVersion(workingPath);
 				continue;
 			}
 			else
