@@ -102,7 +102,7 @@ static void GetTrackedExtensions(char* buffer, int fileLength)
 		{
 			if (selectedChar == '\n')
 			{
-				extensionsRead = true;
+				/* extensionsRead = true;
 
 				int newExtensionLength = (i - lastExtensionIndex);
 				char* newExtension = new char[newExtensionLength];
@@ -116,6 +116,10 @@ static void GetTrackedExtensions(char* buffer, int fileLength)
 				extensionsList.emplace_back(extensionString);
 
 				lastExtensionIndex = i + 1;
+
+				*/
+
+				break;
 			}
 
 			if (selectedChar == ' ')
@@ -130,6 +134,7 @@ static void GetTrackedExtensions(char* buffer, int fileLength)
 				newExtension[newExtensionLength - 1] = 0;
 
 				std::string extensionString(newExtension);
+				extensionString = "." + extensionString;
 				extensionsList.emplace_back(extensionString);
 
 				lastExtensionIndex = i + 1;
@@ -672,6 +677,8 @@ int main()
 
 			if (testsPassed)
 			{
+				allVersionsPassed = true;
+
 				std::ofstream versionFileOutput(versionPath.c_str(), std::ifstream::binary);
 
 				bool overwrittenVersionMarker = false;
@@ -684,6 +691,10 @@ int main()
 					}
 					else versionFileOutput << buffer[i];
 				}
+
+				versionFileOutput << std::endl;
+
+				std::vector<std::filesystem::path> savedPaths;
 
 				std::filesystem::recursive_directory_iterator directoryIterate(workingDirectory);
 				for (std::filesystem::directory_entry entry : directoryIterate)
@@ -713,7 +724,13 @@ int main()
 					}
 					if (!trackedExtension) continue;
 
-					versionFileOutput << entry.path().filename() << std::endl;
+					savedPaths.push_back(entry.path().filename());
+				}
+
+				versionFileOutput << "[" << savedPaths.size() << "]" << std::endl;
+				for (std::filesystem::path entry : savedPaths)
+				{
+					versionFileOutput << entry << std::endl;
 				}
 
 				versionFileOutput.flush();

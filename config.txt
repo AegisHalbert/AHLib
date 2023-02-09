@@ -1,20 +1,21 @@
-.cpp .exe .cs 
+.exe .cs .cpp 
 ---Files ignored. Defaults to all the files found on root upon config.txt creation.---
-".git"
-".gitattributes"
-".gitignore"
-"AHLib.vcxproj"
-"AHLib.vcxproj.filters"
-"AHLib.vcxproj.user"
-"config.txt"
-"Core"
-"FocusTester_SB.cpp"
-"GA_Sandbox.cpp"
-"LICENSE"
-"Meta"
-"PolyRunner_SB.cpp"
-"README.md"
-"Release"
-"Samples"
-"Structures_Sandbox.cpp"
-"x64"
+.git
+.gitattributes
+.gitignore
+AHLib.vcxproj
+AHLib.vcxproj.filters
+AHLib.vcxproj.user
+config.txt
+Core
+FocusTester_SB.cpp
+GA_Sandbox.cpp
+LICENSE
+Meta
+PolyRunner_SB.cpp
+README.md
+Release
+Samples
+Structures_Sandbox.cpp
+TestingFolder
+x64
