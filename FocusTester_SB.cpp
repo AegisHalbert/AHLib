@@ -273,6 +273,8 @@ static void FillTestingList(char* buffer, int fileLength)
 
 	unsigned long long registeredTestingTime = 0ULL;
 
+	std::vector<std::string> filesList;
+
 	bool lastVersion = false;
 	for (int i = 0; i < fileLength; i++)
 	{
@@ -313,6 +315,11 @@ static void FillTestingList(char* buffer, int fileLength)
 			if (selectedChar == '\n' || selectedChar == '\r')
 			{
 				char& charAhead = buffer[i + 1];
+				if (charAhead == '\n' || charAhead == '\r')
+				{
+					i++;
+					charAhead = buffer[i + 1];
+				}
 
 				if (charAhead == '+')
 				{
@@ -807,12 +814,16 @@ int main()
 					if (i == testingSize - 1) testsPassed = true;
 					continue;
 				}
-				if (fullCommand == "kill")
+				else if (fullCommand == "kill")
 				{
 					std::cout << "VERIFICATION CANCELLED. NOTHING WAS CHANGED" << std::endl;
 					break;
 				}
-				std::cout << "ERROR command, try again. No space (?)" << std::endl;
+				else
+				{
+					std::cout << "ERROR command, try again. No space (?)" << std::endl;
+					continue;
+				}
 			}
 
 			if (testsPassed)
@@ -824,12 +835,13 @@ int main()
 				bool overwrittenVersionMarker = false;
 				for (int i = 0; i < fileLength; i++)
 				{
-					if (!overwrittenVersionMarker && i >= lastTestCheckIndex + 1)
+					if (!overwrittenVersionMarker && i >= lastTestCheckIndex)
 					{
 						if (buffer[i] == '-') versionFileOutput << '+';
 						else overwrittenVersionMarker = true;
+						continue;
 					}
-					else versionFileOutput << buffer[i];
+					versionFileOutput << buffer[i];
 				}
 
 				versionFileOutput << std::endl;
@@ -864,7 +876,7 @@ int main()
 					}
 					if (!trackedExtension) continue;
 
-					savedPaths.push_back(entry.path().filename());
+					savedPaths.push_back(entry.path().filename().string());
 				}
 
 				versionFileOutput << "[" << savedPaths.size() << "]" << std::endl;

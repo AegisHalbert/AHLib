@@ -1,4 +1,4 @@
-.exe .cpp .cs 
+.exe .cs .cpp 
 ---Files ignored. Defaults to all the files found on root upon config.txt creation.---
 .git
 .gitattributes
