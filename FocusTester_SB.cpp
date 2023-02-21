@@ -503,7 +503,7 @@ static void CreateNewVersion(std::filesystem::path workingPath)
 	std::cout << "Version file created " << std::endl;
 }
 
-int main()
+int main_fts()
 {
 	std::filesystem::path workingPath = std::filesystem::current_path();
 
