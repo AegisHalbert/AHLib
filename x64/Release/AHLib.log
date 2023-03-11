@@ -1,9 +1,0 @@
-﻿  FocusTester_SB.cpp
-D:\CDev\AHLib\AHLib\FocusTester_SB.cpp(188,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\CDev\AHLib\AHLib\FocusTester_SB.cpp(239,18): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
-  Generating code
-  46 of 657 functions ( 7.0%) were compiled, the rest were copied from previous compilation.
-    23 functions were new in current compilation
-    84 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  AHLib.vcxproj -> D:\CDev\AHLib\x64\Release\AHLib.exe

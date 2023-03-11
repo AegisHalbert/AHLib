@@ -1,0 +1,14 @@
+﻿  Benchmark.cpp
+D:\_CDev\AHLibraries\projects\AHLMeta\Benchmark.cpp(18,15): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+D:\_CDev\AHLibraries\projects\AHLMeta\Benchmark.cpp(19,13): warning C4244: 'initializing': conversion from '_Rep' to 'int', possible loss of data
+          with
+          [
+              _Rep=__int64
+          ]
+  main.cpp
+  Generating Code...
+  AHLMeta.vcxproj -> D:\_CDev\AHLibraries\bin\AHLMeta\Debug\Win32\AHLMeta.lib

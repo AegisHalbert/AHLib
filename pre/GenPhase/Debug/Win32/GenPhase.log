@@ -1,0 +1,16 @@
+﻿  gpBasics.cpp
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasics.cpp(21,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasics.cpp(88,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasics.cpp(98,21): warning C4018: '<': signed/unsigned mismatch
+  gpBasicsTEST.cpp
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasicsTEST.cpp(104,22): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasicsTEST.cpp(110,21): warning C4018: '<': signed/unsigned mismatch
+  main.cpp
+  polyrunnerTEST.cpp
+  polyrunner.cpp
+  Generating Code...
+D:\_CDev\AHLibraries\projects\GenPhase\polyrunner.cpp(29): warning C4715: 'ahl::ElementalOperate': not all control paths return a value
+D:\_CDev\AHLibraries\projects\GenPhase\polyrunner.cpp(64): warning C4715: 'ahl::PolyRunner': not all control paths return a value
+D:\_CDev\AHLibraries\projects\GenPhase\gpBasics.cpp(52): warning C4715: 'ahl::MpGene::operator=': not all control paths return a value
+main.obj : warning LNK4006: _main already defined in polyrunnerTEST.obj; second definition ignored
+  GenPhase.vcxproj -> D:\_CDev\AHLibraries\bin\GenPhase\Debug\Win32\GenPhase.lib
