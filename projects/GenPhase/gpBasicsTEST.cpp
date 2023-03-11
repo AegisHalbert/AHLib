@@ -18,7 +18,7 @@ float GetFitValue(std::array<int, S> answer, const ahl::MpGene& target)
 	return totalFit;
 }
 
-int TestgpBasics()
+static int TestgpBasics()
 {
 	std::srand((unsigned int)time(NULL));
 

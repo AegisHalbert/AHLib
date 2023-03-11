@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main()
+static int Testpolyrunner()
 {
 	std::queue<int> callSequence;
 	callSequence.push(0);

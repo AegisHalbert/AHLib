@@ -1,0 +1,17 @@
+﻿  main.cpp
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(262,40): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(418,17): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(492,20): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(572,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(595,18): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(606,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(615,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(630,18): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(641,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(650,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(720,21): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(742,17): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(791,19): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(855,24): warning C4018: '<': signed/unsigned mismatch
+D:\_CDev\AHLib\projects\FocusTester\main.cpp(866,24): warning C4018: '<': signed/unsigned mismatch
+  FocusTester.vcxproj -> D:\_CDev\AHLib\bin\FocusTester\Debug\Win32\FocusTester.exe
